@@ -23,4 +23,9 @@ std::string Timestamp::toString() const
 	return buf;
 }
 
+Timestamp Timestamp::now()
+{
+	return Timestamp(time(nullptr));
+}
+
 }

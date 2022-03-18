@@ -2,6 +2,7 @@
 #include <string>
 
 namespace qian {
+
 class Timestamp{
 public:
 	Timestamp();
@@ -11,4 +12,5 @@ public:
 private:
 	int64_t microseconds_;
 };
+
 } // namespace qian

@@ -1,0 +1,36 @@
+#include "eventloop.h"
+#include <iostream>
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <sys/eventfd.h>
+
+namespace qian {
+thread_local EventLoop::Ptr t_loopInThisThread = nullptr;
+const int kPollTimeMs = 10000;
+
+static int createEventfd()
+{
+	int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
+	if (evtfd < 0) {
+		std::cerr << "Failed to create eventf";
+		abort();
+	}
+	return evtfd;
+}
+
+EventLoop::EventLoop():
+	looping_(false),
+	quit_(false),
+	thread_id_(getpid()),
+	poll_return_time_(Timestamp::now()),
+	poller_(new Poller(this)),
+	wakeup_fd_(createEventfd()),
+	channel_(new Channel(this, wakeup_fd_)),
+	mutex_()
+{
+	channel_->setReadCallback(std::bind(&EventLoop::handleRead, this));
+	channel_->enableReading();
+	::fcntl(wakeup_fd_, F_SETFL, O_NONBLOCK);
+
+} // namespace qian
