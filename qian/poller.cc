@@ -2,15 +2,15 @@
 #include "channel.h"
 
 namespace qian {
-Poller::Poller(EventLoop *loop)
-	: loop_(loop)
+Poller::Poller(EventLoop* loop)
+    : loop_(loop)
 {
 }
 
-bool Poller::hasChannel(Channel *channel) const
+bool Poller::hasChannel(Channel* channel) const
 {
-	auto it = channels_.find(channel->fd());
-	return it != channels_.end() && it->second == channel;
+    auto it = channels_.find(channel->fd());
+    return it != channels_.end() && it->second == channel;
 }
 
 } // namespace qian
