@@ -13,13 +13,14 @@ class Channel: Noncopyable, public std::enable_shared_from_this<Channel>{
 public:
 	using EventCallback = std::function<void()>;
 	using ReadEventCallback = std::function<void(Timestamp)>;
+
+
 	Channel(std::shared_ptr<EventLoop> loop, int fd);
 	~Channel() = default;
 
 	void handleEvent(Timestamp receiveTime);
 
 	void setReadCallback(ReadEventCallback cb) { read_callback_ = cb; }
-
 	void setWriteCallback(EventCallback cb) { write_callback_ = cb; }
 	void setCloseCallback(EventCallback cb) { close_callback_ = cb; }
 	void setErrorCallback(EventCallback cb) { error_callback_ = cb; }
@@ -49,6 +50,7 @@ public:
 	void set_index(int idx) { index_ = idx; }
 
 	std::shared_ptr<EventLoop> ownerLoop() { return loop_; }
+
 	void remove();
 
 private:
