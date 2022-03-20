@@ -1,5 +1,7 @@
 #include "thread.h"
 #include <semaphore.h>
+#include <sys/syscall.h>
+#include <unistd.h>
 
 namespace qian {
 
@@ -12,12 +14,13 @@ Thread::Thread(Function func, const std::string& name)
     , name_(name)
     , tid_(0)
 {
+    num_ = ++num_created_;
     setDefaultName();
 }
 
 Thread::~Thread()
 {
-    if (started_ && joined_) {
+    if (started_ && !joined_) {
         thread_->detach();
     }
 }
@@ -28,12 +31,12 @@ void Thread::start()
     sem_t sem;
     sem_init(&sem, false, 0);
     thread_ = std::shared_ptr<std::thread>(new std::thread(
-        [&]() {
-            tid_ = getpid();
+        [&]() { // new thread
+            tid_ = static_cast<pid_t>(::syscall(SYS_gettid));
             sem_post(&sem);
             func_();
         }));
-    sem_wait(&sem);
+    sem_wait(&sem); // wait for tid_ valid
 }
 
 void Thread::join()
@@ -44,10 +47,9 @@ void Thread::join()
 
 void Thread::setDefaultName()
 {
-    int num = ++num_created_;
     if (name_.empty()) {
         char buf[32] = { 0 };
-        snprintf(buf, sizeof(buf), "Thread%d", num);
+        snprintf(buf, sizeof(buf), "Thread%d", num_);
         name_ = buf;
     }
 }

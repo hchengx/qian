@@ -2,8 +2,8 @@
 
 #include "channel.h"
 #include "noncopyable.h"
+#include "socket.h"
 #include <functional>
-// #include "socket.h"
 
 namespace qian {
 class EventLoop;
@@ -13,7 +13,7 @@ class Acceptor : Noncopyable {
 public:
     using NewConnectionCallback = std::function<void(int sockfd, const InetAddress&)>;
 
-    Acceptor(EventLoop* loop, const InetAddress& listenAddr);
+    Acceptor(EventLoop* loop, const InetAddress& listenAddr, bool request);
     ~Acceptor();
 
     void setNewConnectionCallback(const NewConnectionCallback& cb) { newConnectionCallback_ = cb; }
@@ -25,10 +25,10 @@ private:
     void handleRead();
 
     EventLoop* loop_;
-    const InetAddress listenAddr_;
     Socket acceptSocket_;
     Channel acceptChannel_;
     bool listenning_;
+
     NewConnectionCallback newConnectionCallback_;
 };
 

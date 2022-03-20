@@ -33,7 +33,8 @@ private:
     std::string name_;
     bool started_;
     int num_threads_;
-    int next_;
+    int next_; /// round idx
+
     std::vector<std::unique_ptr<EventLoopThread>> threads_;
     std::vector<EventLoop*> loops_;
 };

@@ -22,6 +22,7 @@ EventLoopThreadPool::~EventLoopThreadPool()
 void EventLoopThreadPool::start(const ThreadInitCallback& cb)
 {
     started_ = true;
+
     for (int i = 0; i < num_threads_; ++i) {
         char buf[name_.size() + 32];
         snprintf(buf, sizeof buf, "%s%d", name_.c_str(), i);
