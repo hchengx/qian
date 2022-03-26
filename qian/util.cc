@@ -6,4 +6,4 @@ namespace qian {
         return syscall(SYS_gettid);
     }
 
-} // namespace qian
+}// namespace qian

@@ -1,16 +1,14 @@
 #include "../qian/eventloop.h"
-#include <thread>
 #include <cstdio>
+#include <thread>
 
-void threadFunc()
-{
+void threadFunc() {
     printf("threadFunc(): pid = %d, tid = %d\n", getpid(), qian::CurrentThread::tid());
     qian::EventLoop loop;
     loop.loop();
 }
 
-int main()
-{
+int main() {
     qian::EventLoop loop;
     loop.loop();
     std::thread t(threadFunc);

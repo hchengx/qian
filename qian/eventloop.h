@@ -1,8 +1,8 @@
 #pragma once
-#include <unistd.h>
-#include <cstdlib>
 #include "util.h"
 #include <cstdio>
+#include <cstdlib>
+#include <unistd.h>
 
 namespace qian {
     class EventLoop {
@@ -16,13 +16,15 @@ namespace qian {
                 abort();
             }
         }
+
     private:
         bool isInLoopThread() const {
             return thread_id_ == CurrentThread::tid();
         }
+
     private:
         const pid_t thread_id_;
         bool looping_;
     };
 
-} // namespace qian
+}// namespace qian
