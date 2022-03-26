@@ -2,6 +2,7 @@
 #include "channel.h"
 #include "eventloop.h"
 #include "timestamp.h"
+#include <algorithm>
 #include <cassert>
 #include <poll.h>
 
@@ -39,6 +40,7 @@ namespace qian {
                 activeChannels->push_back(channel);
             }
         }
+        assert(numEvents == 0);
     }
 
     void Poller::updateChannel(Channel *channel) {
@@ -68,6 +70,28 @@ namespace qian {
             if (channel->isNoneEvent()) {
                 pfd.fd = -1;
             }
+        }
+    }
+    void Poller::removeChannel(Channel *channel) {
+        int fd = channel->fd();
+        assertInLoopThread();
+        assert(channels_.find(fd) != channels_.end());
+        assert(channels_[fd] == channel);
+        assert(channel->isNoneEvent());
+        int idx = channel->index();
+        assert(idx >= 0 && idx < static_cast<int>(pollfds_.size()));
+        size_t n = channels_.erase(fd);
+        assert(n == 1);
+        if (idx == pollfds_.size() - 1) {
+            pollfds_.pop_back();
+        } else {
+            int channelAtEnd = pollfds_.back().fd;
+            std::iter_swap(pollfds_.begin() + idx, pollfds_.end() - 1);
+            if (channelAtEnd < 0) {
+                channelAtEnd = -1;
+            }
+            channels_[channelAtEnd]->set_index(idx);
+            pollfds_.pop_back();
         }
     }
 

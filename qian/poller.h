@@ -16,6 +16,7 @@ namespace qian {
         Timestamp poll(int timeout, ChannelList *activeChannels);
         /// 维护更新Channel的状态
         void updateChannel(Channel *channel);
+        void removeChannel(Channel *channel);
         void assertInLoopThread();
 
     private:

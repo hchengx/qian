@@ -7,12 +7,15 @@ namespace qian {
     public:
         static pid_t tid();
     };
+
+
     class Noncopyable {
     protected:
         Noncopyable() = default;
         ~Noncopyable() = default;
+
     private:
-        Noncopyable(const Noncopyable&) = delete;
-        Noncopyable& operator=(const Noncopyable&) = delete;
+        Noncopyable(const Noncopyable &) = delete;
+        Noncopyable &operator=(const Noncopyable &) = delete;
     };
 }// namespace qian

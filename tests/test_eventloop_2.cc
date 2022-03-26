@@ -1,7 +1,7 @@
 /*
  * description: negative test for eventloop
  */
-#include "../qian/eventloop.h"
+#include "../qian/qian.h"
 #include <thread>
 
 void threadFunc(qian::EventLoop *loop) {
