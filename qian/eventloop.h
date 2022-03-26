@@ -2,9 +2,13 @@
 #include "util.h"
 #include <cstdio>
 #include <cstdlib>
+#include <memory>
 #include <unistd.h>
+#include <vector>
 
 namespace qian {
+    class Channel;
+    class Poller;
     class EventLoop {
     public:
         EventLoop();
@@ -16,6 +20,8 @@ namespace qian {
                 abort();
             }
         }
+        void updateChannel(Channel *channel);
+        void quit();
 
     private:
         bool isInLoopThread() const {
@@ -25,6 +31,10 @@ namespace qian {
     private:
         const pid_t thread_id_;
         bool looping_;
+        bool quit_;
+        std::shared_ptr<Poller> poller_;
+        typedef std::vector<Channel *> ChannelList;
+        ChannelList activeChannels_;
     };
 
 }// namespace qian
