@@ -33,6 +33,35 @@
 #define QIAN_LOG_ERROR(logger) QIAN_LOG_LEVEL(logger, qian::LogLevel::ERROR)
 #define QIAN_LOG_FATAL(logger) QIAN_LOG_LEVEL(logger, qian::LogLevel::FATAL)
 
+#define QIAN_LOG_FMT_LEVEL(logger, level, fmt, ...)                                \
+    if (logger->getLevel() <= level)                                               \
+    qian::LogEventWrap(qian::LogEvent::ptr(new qian::LogEvent(logger,              \
+                                                              level,               \
+                                                              __FILE__,            \
+                                                              __LINE__,            \
+                                                              0,                   \
+                                                              qian::GetThreadId(), \
+                                                              qian::GetFiberId(),  \
+                                                              time(0),             \
+                                                              "")))                \
+        .getEvent()                                                                \
+        ->format(fmt, __VA_ARGS__)
+
+#define QIAN_LOG_FMT_DEBUG(logger, fmt, ...) \
+    QIAN_LOG_FMT_LEVEL(logger, qian::LogLevel::DEBUG, fmt, __VA_ARGS__)
+
+#define QIAN_LOG_FMT_INFO(logger, fmt, ...) \
+    QIAN_LOG_FMT_LEVEL(logger, qian::LogLevel::INFO, fmt, __VA_ARGS__)
+
+#define QIAN_LOG_FMT_WARN(logger, fmt, ...) \
+    QIAN_LOG_FMT_LEVEL(logger, qian::LogLevel::WARN, fmt, __VA_ARGS__)
+
+#define QIAN_LOG_FMT_ERROR(logger, fmt, ...) \
+    QIAN_LOG_FMT_LEVEL(logger, qian::LogLevel::ERROR, fmt, __VA_ARGS__)
+
+#define QIAN_LOG_FMT_FATAL(logger, fmt, ...) \
+    QIAN_LOG_FMT_LEVEL(logger, qian::LogLevel::FATAL, fmt, __VA_ARGS__)
+
 #define QIAN_LOG_ROOT() qian::LoggerMgr::GetInstance()->getRoot()
 
 namespace qian {
@@ -98,7 +127,9 @@ private:
 class LogEventWrap
 {
 public:
-    LogEventWrap(LogEvent::ptr e);
+    LogEventWrap(LogEvent::ptr e)
+        : m_event(e)
+    {}
     ~LogEventWrap();   // 析构函数将LogEvent写入日志器
     LogEvent::ptr      getEvent() const { return m_event; }
     std::stringstream& getContentStream();
@@ -113,6 +144,7 @@ public:
     typedef std::shared_ptr<LogFormatter> ptr;
     LogFormatter(const std::string& pattern);
     std::string format(std::shared_ptr<Logger> logger, LogLevel::Level level, LogEvent::ptr event);
+    void        init();
 
 public:
     class FormatItem
@@ -123,7 +155,6 @@ public:
         virtual void format(std::ostream& os, std::shared_ptr<Logger> logger, LogLevel::Level level,
                             LogEvent::ptr event) = 0;
     };
-    void init();
 
 private:
     std::string                  m_pattern;
@@ -183,8 +214,18 @@ public:
     Logger(const std::string& name = "root");
     void log(LogLevel::Level level, const LogEvent::ptr event);
 
-    LogLevel::Level    getLevel() const { return m_level; }
-    void               setLevel(LogLevel::Level level) { m_level = level; }
+    void debug(LogEvent::ptr event);
+    void info(LogEvent::ptr event);
+    void warn(LogEvent::ptr event);
+    void error(LogEvent::ptr event);
+    void fatal(LogEvent::ptr event);
+
+    void addAppender(LogAppender::ptr appender);
+    void delAppender(LogAppender::ptr appender);
+
+    LogLevel::Level getLevel() const { return m_level; }
+    void            setLevel(LogLevel::Level level) { m_level = level; }
+
     const std::string& getName() const { return m_name; }
 
 
@@ -192,6 +233,7 @@ private:
     std::string                 m_name;
     LogLevel::Level             m_level;
     std::list<LogAppender::ptr> m_appenders;
+    LogFormatter::ptr           m_formatter;
 };
 
 class LoggerManager

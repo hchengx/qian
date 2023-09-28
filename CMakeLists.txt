@@ -7,9 +7,13 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(LIB_SRC
     src/log.cc
+    src/util.cc
     )
 
 add_library(qian SHARED ${LIB_SRC})
 
 target_include_directories(qian PUBLIC ${PROJECT_SOURCE_DIR}/include)
+
+add_executable(test tests/test.cc)
+target_link_libraries(test qian)
 
